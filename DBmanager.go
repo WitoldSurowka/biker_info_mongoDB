@@ -29,7 +29,7 @@ func (repo *MongoDBRepository) ReadData() ([]Record, error) {
 	defer cancel()
 
 	// Find all records
-	cursor, err := repo.collection.Find(ctx, bson.D{})
+	cursor, err := repo.collection.Find(ctx, bson.D{{"phoneNumber", bson.D{{"$exists", true}}}})
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +69,14 @@ func (repo *MongoDBRepository) AddRecord(phoneNumber, city string) error {
 	} else {
 
 		// Get the current highest ID in the collection
-		var lastRecord Record
-		opts := options.FindOne().SetSort(bson.D{{"id", -1}})
-		err = repo.collection.FindOne(ctx, bson.D{}, opts).Decode(&lastRecord)
+		var iDCounterDocument IDCounterDocument
+		filter := bson.D{{"currentID", bson.D{{"$exists", true}}}}
+		opts := options.FindOne().SetSort(bson.D{{"currentID", -1}})
+		err := repo.collection.FindOne(ctx, filter, opts).Decode(&iDCounterDocument)
 		if err != nil && err != mongo.ErrNoDocuments {
 			return err
 		}
-		newID := lastRecord.ID + 1
+		newID := iDCounterDocument.CurrentID + 1
 
 		// Add the new record with the current date as SubscriptionDate
 		_, err = repo.collection.InsertOne(ctx, Record{
@@ -86,10 +87,19 @@ func (repo *MongoDBRepository) AddRecord(phoneNumber, city string) error {
 		})
 		if err != nil {
 			return err
+		} else {
+			InfoStatusAdded(phoneNumber, city)
 		}
 
-		InfoStatusAdded(phoneNumber, city)
-		return nil
+		// Update CurrentID
+		_, err = repo.collection.UpdateOne(
+			ctx,
+			bson.M{},
+			bson.D{{"$set", bson.D{{"currentID", newID}}}},
+		)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

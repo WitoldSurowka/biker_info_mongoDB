@@ -18,6 +18,11 @@ type Record struct {
 	SubscriptionDate time.Time `bson:"subscriptionDate"` // New field for subscription date
 }
 
+// currentID is the counter of so far activated services (requires initial document with initial value: 0)
+type IDCounterDocument struct {
+	CurrentID int `bson:"currentID"`
+}
+
 type MongoDBRepository struct {
 	client     *mongo.Client
 	collection *mongo.Collection

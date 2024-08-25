@@ -50,7 +50,10 @@ func (wc *WeatherConditions) WeatherConditionMessage() string {
 			"brak opadów.\n", wc.Wind*3.6, wc.TempMin)
 	}
 	if len(message) == 0 {
-		message = "Jutro (" + weekdays[fmt.Sprint(time.Now().Weekday()+1)] + ")" + cityString + "odpowiednie warunki do jazdy jednośladem \\m/" + cityString
+		message = fmt.Sprintf("Jutro ("+weekdays[fmt.Sprint(time.Now().Weekday()+1)]+")"+cityString+"odpowiednie warunki do jazdy jednośladem \n"+
+			"wiatr:%.2f km/h,\n"+
+			"temperatura minimalna:%v °C,\n"+
+			"brak opadów.\n", wc.Wind*3.6, wc.TempMin)
 	}
 
 	return message
