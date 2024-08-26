@@ -7,7 +7,9 @@ import (
 
 func main() {
 
-	repo, err := NewMongoDBRepository("X", "Y", "Z")
+	//repoUsers, repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
+	repoUsers, err := NewMongoDBRepository("X", "Y", "Z")
+	repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
@@ -16,15 +18,15 @@ func main() {
 
 	ticker := time.NewTicker(1 * time.Second)
 
-	ReceiveSMS(repo, "123123123", "ikasfhbgdiasfgiasdf")
-	ReceiveSMS(repo, "123123123", "Rodo")
-	ReceiveSMS(repo, "123123123", "help")
-	ReceiveSMS(repo, "123123123", "miasta")
-	ReceiveSMS(repo, "123123123", "Ropica")
-	ReceiveSMS(repo, "123123123", "Ropica")
-	ReceiveSMS(repo, "123123123", "Ropica")
-	ReceiveSMS(repo, "123123123", "Kraków")
-	ReceiveSMS(repo, "123123124", "Ropica")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "ikasfhbgdiasfgiasdf")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Rodo")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "help")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "miasta")
+	ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Kraków")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123124", "Ropica")
 
 	for range ticker.C {
 		currentTime = time.Now()
@@ -34,7 +36,9 @@ func main() {
 		//	fmt.Println(wc.WeatherConditionMessage())
 		//}
 		if currentTime.Second() == 50 {
-			SendFeed(repo)
+
+			go SendFeed(repoUsers, repoOutboundSMS)
+
 		}
 
 	}

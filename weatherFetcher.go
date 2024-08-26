@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+//TODO zrobic tak, zeby pogoda dla wszystkich obslugwanych lokacji
+// była pobierana jednorazowo chwilę przed wysłaniem feedu do użytkowników
+// w przeciwnym razie może iść zbyt wiele requestów do yr.no, jeśli wiele usług będzie działać
+
 // initializing a data structure to keep the scraped data
 type WeatherStatus struct {
 	date, url, precip, tempMin, wind string

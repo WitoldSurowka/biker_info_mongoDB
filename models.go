@@ -23,6 +23,13 @@ type IDCounterDocument struct {
 	CurrentID int `bson:"currentID"`
 }
 
+type SMS struct {
+	PhoneNumber  string    `bson:"phoneNumber"`
+	Message      string    `bson:"message"`
+	CreationDate time.Time `bson:"creationDate"`
+	Processed    bool      `bson:"processed"`
+}
+
 type MongoDBRepository struct {
 	client     *mongo.Client
 	collection *mongo.Collection

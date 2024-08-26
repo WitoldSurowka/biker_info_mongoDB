@@ -24,12 +24,14 @@ func NewMongoDBRepository(uri, dbName, collectionName string) (*MongoDBRepositor
 	}, nil
 }
 
-func (repo *MongoDBRepository) ReadData() ([]Record, error) {
+// ------ methods for users collection ------
+
+func (repoUsers *MongoDBRepository) UsersReadData() ([]Record, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	// Find all records
-	cursor, err := repo.collection.Find(ctx, bson.D{{"phoneNumber", bson.D{{"$exists", true}}}})
+	cursor, err := repoUsers.collection.Find(ctx, bson.D{{"phoneNumber", bson.D{{"$exists", true}}}})
 	if err != nil {
 		return nil, err
 	}
@@ -52,34 +54,30 @@ func (repo *MongoDBRepository) ReadData() ([]Record, error) {
 }
 
 // AddRecord adds a new record to the MongoDB collection
-func (repo *MongoDBRepository) AddRecord(phoneNumber, city string) error {
+func (repoUsers *MongoDBRepository) UsersAddRecord(repoOutboundMessages *MongoDBRepository, phoneNumber, city string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	// Check if the record already exists
 	var existingRecord Record
-	err := repo.collection.FindOne(ctx, bson.M{"phoneNumber": phoneNumber, "city": city}).Decode(&existingRecord)
+	err := repoUsers.collection.FindOne(ctx, bson.M{"phoneNumber": phoneNumber, "city": city}).Decode(&existingRecord)
 	if err == nil {
 		// Record exists, so delete it
-		_, err := repo.collection.DeleteOne(ctx, bson.M{"id": existingRecord.ID})
-		if err != nil {
-			return err
-		}
-		InfoStatusDeleted(phoneNumber, city)
+		repoUsers.UsersDeleteRecord(repoOutboundMessages, existingRecord.ID, phoneNumber, city)
 	} else {
 
 		// Get the current highest ID in the collection
 		var iDCounterDocument IDCounterDocument
 		filter := bson.D{{"currentID", bson.D{{"$exists", true}}}}
 		opts := options.FindOne().SetSort(bson.D{{"currentID", -1}})
-		err := repo.collection.FindOne(ctx, filter, opts).Decode(&iDCounterDocument)
+		err := repoUsers.collection.FindOne(ctx, filter, opts).Decode(&iDCounterDocument)
 		if err != nil && err != mongo.ErrNoDocuments {
 			return err
 		}
 		newID := iDCounterDocument.CurrentID + 1
 
 		// Add the new record with the current date as SubscriptionDate
-		_, err = repo.collection.InsertOne(ctx, Record{
+		_, err = repoUsers.collection.InsertOne(ctx, Record{
 			ID:               newID,
 			PhoneNumber:      phoneNumber,
 			City:             city,
@@ -88,11 +86,11 @@ func (repo *MongoDBRepository) AddRecord(phoneNumber, city string) error {
 		if err != nil {
 			return err
 		} else {
-			InfoStatusAdded(phoneNumber, city)
+			InfoStatusAdded(repoOutboundMessages, phoneNumber, city)
 		}
 
 		// Update CurrentID
-		_, err = repo.collection.UpdateOne(
+		_, err = repoUsers.collection.UpdateOne(
 			ctx,
 			bson.M{},
 			bson.D{{"$set", bson.D{{"currentID", newID}}}},
@@ -105,10 +103,64 @@ func (repo *MongoDBRepository) AddRecord(phoneNumber, city string) error {
 }
 
 // DeleteRecord deletes a record by ID from the MongoDB collection
-func (repo *MongoDBRepository) DeleteRecord(id int) error {
+func (repoUsers *MongoDBRepository) UsersDeleteRecord(repoOutboundMessages *MongoDBRepository, id int, phoneNumber string, city string) error {
+
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	_, err := repo.collection.DeleteOne(ctx, bson.M{"id": id})
+	_, err := repoUsers.collection.DeleteOne(ctx, bson.M{"id": id})
+	if err != nil {
+		return err
+	}
+	InfoStatusDeleted(repoOutboundMessages, phoneNumber, city)
+
+	return err
+}
+
+// ------ methods for outboundMessages collection ------
+
+// OutboundSMSAddSMS ads an SMS to the MongoDB collection
+func (repoOutboundSMS *MongoDBRepository) OutboundSMSAddSMS(phoneNumber, message string) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	_, err := repoOutboundSMS.collection.InsertOne(ctx, SMS{
+		PhoneNumber:  phoneNumber,
+		Message:      message,
+		CreationDate: time.Now(),
+		Processed:    false,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = repoOutboundSMS.OutboundSMSDeleteSMS()
+
+	return err
+}
+
+func (repoOutboundSMS *MongoDBRepository) OutboundSMSDeleteSMS() error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	count, err := repoOutboundSMS.collection.CountDocuments(ctx, bson.M{"processed": true})
+	if err != nil {
+		return err
+	}
+
+	//var processedSMSes []SMS
+	//if err := cursor.All(ctx, &processedSMSes); err != nil {
+	//	return err
+	//}
+	// Sprawdź, czy znaleziono przetworzone SMSy i usuń je
+	if count != 0 {
+		_, err := repoOutboundSMS.collection.DeleteMany(ctx, bson.M{"processed": true})
+		if err != nil {
+			return err
+		}
+	}
+
 	return err
 }
