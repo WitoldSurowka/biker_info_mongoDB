@@ -8,8 +8,8 @@ import (
 func main() {
 
 	//repoUsers, repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
-	repoUsers, err := NewMongoDBRepository("mongodb://biker_witold:sylvia@localhost:27017/", "biker_info_DB", "users")
-	repoOutboundSMS, err := NewMongoDBRepository("mongodb://biker_witold:sylvia@localhost:27017/", "biker_info_DB", "outboundSMS")
+	repoUsers, err := NewMongoDBRepository("X", "Y", "Z")
+	repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
