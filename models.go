@@ -1,17 +1,18 @@
 package main
 
 import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"math"
 	"time"
 )
 
 type Data struct {
-	Records   []Record `json:"records"`
-	CurrentID int      `json:"currentId"`
+	Records   []UserRecord `json:"records"`
+	CurrentID int          `json:"currentId"`
 }
 
-type Record struct {
+type UserRecord struct {
 	ID               int       `bson:"id"`
 	PhoneNumber      string    `bson:"phoneNumber"`
 	City             string    `bson:"city"`
@@ -28,6 +29,14 @@ type SMS struct {
 	Message      string    `bson:"message"`
 	CreationDate time.Time `bson:"creationDate"`
 	Processed    bool      `bson:"processed"`
+}
+
+type MongoSMS struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	PhoneNumber  string             `bson:"phoneNumber"`
+	Message      string             `bson:"message"`
+	CreationDate time.Time          `bson:"creationDate"`
+	Processed    bool               `bson:"processed"`
 }
 
 type MongoDBRepository struct {
