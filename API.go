@@ -7,21 +7,21 @@ import (
 )
 
 func ReceiveSMS(repoUsers *MongoDBRepository, repoOutboundMessages *MongoDBRepository,
-	phoneNumber string, content string) {
+	phoneNumber string, content string) error {
 
 	content = strings.ToLower(content)
 
 	if content == "help" {
 		InfoHelp(repoOutboundMessages, phoneNumber)
-		return
+		return nil
 	}
 	if content == "miasta" {
 		InfoCities(repoOutboundMessages, phoneNumber)
-		return
+		return nil
 	}
 	if content == "rodo" {
 		InfoRODO(repoOutboundMessages, phoneNumber)
-		return
+		return nil
 	}
 	if CheckIfCityInBase(content) != true {
 		InfoError(repoOutboundMessages, phoneNumber)
@@ -30,7 +30,7 @@ func ReceiveSMS(repoUsers *MongoDBRepository, repoOutboundMessages *MongoDBRepos
 		content = synonims[content]
 		repoUsers.UsersAddRecord(repoOutboundMessages, phoneNumber, content)
 	}
-
+	return nil
 }
 
 func OutboundSMS(repoOutboundSMS *MongoDBRepository, phoneNumber string, message string) {

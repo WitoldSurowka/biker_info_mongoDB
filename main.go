@@ -2,21 +2,23 @@ package main
 
 import (
 	"log"
-	"time"
 )
 
 func main() {
 
 	//repoUsers, repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
-	repoUsers, err := NewMongoDBRepository("X", "Y", "Z")
-	repoOutboundSMS, err := NewMongoDBRepository("X", "Y", "Z")
+	repoUsers, err := NewMongoDBRepository("mongodb://biker_witold:sylvia@localhost:27017/", "biker_info_DB", "users")
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
-
-	currentTime := time.Now()
-
-	ticker := time.NewTicker(1 * time.Second)
+	repoOutboundSMS, err := NewMongoDBRepository("mongodb://biker_witold:sylvia@localhost:27017/", "biker_info_DB", "outboundSMS")
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+	repoInboundSMS, err := NewMongoDBRepository("mongodb://biker_witold:sylvia@localhost:27017/", "biker_info_DB", "inboundSMS")
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
 
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "ikasfhbgdiasfgiasdf")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Rodo")
@@ -28,19 +30,8 @@ func main() {
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Kraków")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123124", "Ropica")
 
-	for range ticker.C {
-		currentTime = time.Now()
-		//fmt.Println(currentTime)
-		//if currentTime.Hour() == 20 && currentTime.Minute() == 22 && currentTime.Second() == 50 {
-		//	wc := NewWeatherConditions(WeatherFetcher("Ropica Górna"))
-		//	fmt.Println(wc.WeatherConditionMessage())
-		//}
-		if currentTime.Second() == 50 {
+	go eventSchedule(repoUsers, repoInboundSMS, repoOutboundSMS)
 
-			go SendFeed(repoUsers, repoOutboundSMS)
-
-		}
-
-	}
+	runServer(repoUsers, repoInboundSMS, repoOutboundSMS)
 
 }
