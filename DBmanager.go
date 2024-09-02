@@ -139,6 +139,12 @@ func (repoOutboundSMS *MongoDBRepository) OutboundSMSAddSMS(phoneNumber, message
 		return err
 	}
 
+	err = TcpInform("localhost", "25060", "A new SMS to send")
+	if err != nil {
+		return err
+	}
+	return err
+
 	return err
 }
 
@@ -189,18 +195,11 @@ func (repoInboundSMS *MongoDBRepository) InboundOutboundMakeUnreadMongoSMSarrayF
 	return UnreadMongoSMSarray, nil
 }
 
-func (repoInboundSMS *MongoDBRepository) InboundOutboundUpdateReadMongoSMSProcessedField(UnreadMongoSMSarray []MongoSMS) error {
+func (repoInboundOutboundSMS *MongoDBRepository) InboundOutboundUpdateReadMongoSMSProcessedField(successfullySentArray []primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	// Create a slice to store the IDs of the documents to be deleted.
-	var ids []primitive.ObjectID
-	for _, sms := range UnreadMongoSMSarray {
-		ids = append(ids, sms.ID)
-	}
-
-	// Perform the deletion using the IDs
-	filter := bson.M{"_id": bson.M{"$in": ids}}
+	filter := bson.M{"_id": bson.M{"$in": successfullySentArray}}
 
 	update := bson.M{
 		"$set": bson.M{
@@ -208,7 +207,7 @@ func (repoInboundSMS *MongoDBRepository) InboundOutboundUpdateReadMongoSMSProces
 		},
 	}
 
-	result, err := repoInboundSMS.collection.UpdateMany(ctx, filter, update)
+	result, err := repoInboundOutboundSMS.collection.UpdateMany(ctx, filter, update)
 	if err != nil {
 		return err
 	}
