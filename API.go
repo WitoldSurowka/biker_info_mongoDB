@@ -35,7 +35,9 @@ func ReceiveSMS(repoUsers *MongoDBRepository, repoOutboundMessages *MongoDBRepos
 
 func OutboundSMS(repoOutboundSMS *MongoDBRepository, phoneNumber string, message string) {
 	fmt.Println("na numer:" + phoneNumber + "wiadomość:\n" + message) //docelowo przekazanie do funkcji wysyłającej
-	repoOutboundSMS.OutboundSMSAddSMS(phoneNumber, message)
+	messageWithoutPolishSigns := replacePolishChars(message)
+	messageWithoutNewlines := removeNewlines(messageWithoutPolishSigns)
+	repoOutboundSMS.OutboundSMSAddSMS(phoneNumber, messageWithoutNewlines)
 }
 func SendFeed(repoUsers, repoOutboundMessages *MongoDBRepository) {
 	start := time.Now() // zanotowanie czasu rozpoczęcia

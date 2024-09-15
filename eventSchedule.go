@@ -10,12 +10,12 @@ func eventSchedule(repoUsers, repoInboundSMS, repoOutboundSMS *MongoDBRepository
 		for range ticker.C {
 			currentTime = time.Now()
 
-			if currentTime.Second() == 40 {
-				repoInboundSMS.InboundOutboundSMSDeleteProcessedSMS()
-				repoOutboundSMS.InboundOutboundSMSDeleteProcessedSMS()
-			}
+			//if currentTime.Second() == 40 {
+			//	repoInboundSMS.InboundOutboundSMSDeleteProcessedSMS()
+			//	repoOutboundSMS.InboundOutboundSMSDeleteProcessedSMS()
+			//}
 
-			if currentTime.Second() == 50 {
+			if currentTime.Minute() == 10 && currentTime.Second() == 00 {
 				go SendFeed(repoUsers, repoOutboundSMS)
 			}
 		}

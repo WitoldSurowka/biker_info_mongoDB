@@ -24,7 +24,14 @@ func main() {
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Rodo")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "help")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "miasta")
-	ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
+
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Kraków")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Lipowa")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "help")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "rodo")
+	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "miasta")
+
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Ropica")
 	//ReceiveSMS(repoUsers, repoOutboundSMS, "123123123", "Kraków")
