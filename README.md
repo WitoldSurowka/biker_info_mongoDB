@@ -8,6 +8,7 @@ You can exchange SMSes with the app, under the telephone number (0048) 579 390 8
 
 An overview of the architecture of the system is depicted below:
 
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/af54851b-54a5-406c-85be-6eb08deb67ca)
+
 
 
